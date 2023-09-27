@@ -49,12 +49,9 @@ void schedRR(FakeOS* os, void* args_){
 };
 */
 
-void schedSJF(FakeOS* os, void* args_){
-  SchedSJFArgs* args=(SchedSJFArgs*)args_;
-
-  //Se non è più presente processo in ready
+ListItem* procmin(FakeOS* os, void* args_){
   if(! os->ready.first)
-    return;
+    return NULL;
 
   //Se presente, considero processo affiorante nella lista ready
   ListItem* pproc = os->ready.first;
@@ -77,7 +74,22 @@ void schedSJF(FakeOS* os, void* args_){
     //vado al processo successivo
     pproc = pproc->next;
   }
+  return mproc;
+  FakePCB* elem = (FakePCB*) mproc;
+  printf("Il processo con il burst minimo è: %d\n", elem->pid);
   printf("Ho trovato il burst minimo: %d\n", min);
+}
+
+void schedSJF(FakeOS* os, void* args_){
+  SchedSJFArgs* args=(SchedSJFArgs*)args_;
+
+  //Se non è più presente processo in ready
+  if(! os->ready.first)
+    return;
+
+  //Effettuare prelazione 
+
+  
 
 };
 
