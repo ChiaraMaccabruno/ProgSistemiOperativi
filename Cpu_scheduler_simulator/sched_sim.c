@@ -9,6 +9,12 @@ typedef struct {
   int quantum;
 } SchedRRArgs;
 
+//scheduler SJF
+typedef struct {
+  int quantum;
+  int a;
+} SchedSJFArgs;
+
 void schedRR(FakeOS* os, void* args_){
   SchedRRArgs* args=(SchedRRArgs*)args_;
 
@@ -38,12 +44,22 @@ void schedRR(FakeOS* os, void* args_){
   }
 };
 
+void schedSJF(FakeOS* os, void* args_){
+  SchedSJFArgs* args=(SchedRRArgs*)args_;
+
+};
+
 int main(int argc, char** argv) {
   FakeOS_init(&os);
   SchedRRArgs srr_args;
+  SchedSJFArgs srr_args2;
   srr_args.quantum=5;
+  srr_args2.quantum=5;
+  srr_args2.a=0;
   os.schedule_args=&srr_args;
+  os.schedule_args=&srr_args2;
   os.schedule_fn=schedRR;
+  os.schedule_fn=schedSJF;
   
   for (int i=1; i<argc; ++i){
     FakeProcess new_process;
