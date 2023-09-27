@@ -1,13 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <limits.h>
 #include "fake_os.h"
 
 FakeOS os;
 
+/*
 typedef struct {
   int quantum;
 } SchedRRArgs;
+*/
 
 //scheduler SJF
 typedef struct {
@@ -15,6 +18,7 @@ typedef struct {
   int a;
 } SchedSJFArgs;
 
+/*
 void schedRR(FakeOS* os, void* args_){
   SchedRRArgs* args=(SchedRRArgs*)args_;
 
@@ -43,22 +47,50 @@ void schedRR(FakeOS* os, void* args_){
     List_pushFront(&pcb->events, (ListItem*)qe);
   }
 };
+*/
 
 void schedSJF(FakeOS* os, void* args_){
-  SchedSJFArgs* args=(SchedRRArgs*)args_;
+  SchedSJFArgs* args=(SchedSJFArgs*)args_;
+
+  //Se non è più presente processo in ready
+  if(! os->ready.first)
+    return;
+
+  //Se presente, considero processo affiorante nella lista ready
+  ListItem* pproc = os->ready.first;
+  //Con SJF entra in running il processo che si trova in ready con il burst più piccolo
+  //Troviamo il processo con il burst minore
+  int min = INT_MAX;
+  ListItem* mproc;
+
+  while(pproc != NULL){
+    //considero pcb del processo
+    FakePCB* pcb = (FakePCB*) pproc;
+    //considero primo evento del processo
+    ProcessEvent* e = (ProcessEvent*)pcb->events.first;
+
+    //cerco il CPU burst minimo
+    if(e->duration < min){
+      min = e->duration;
+      mproc = pproc;
+    }
+    //vado al processo successivo
+    pproc = pproc->next;
+  }
+  printf("Ho trovato il burst minimo: %d\n", min);
 
 };
 
 int main(int argc, char** argv) {
   FakeOS_init(&os);
-  SchedRRArgs srr_args;
+  //SchedRRArgs srr_args;
   SchedSJFArgs srr_args2;
-  srr_args.quantum=5;
+  //srr_args.quantum=5;
   srr_args2.quantum=5;
   srr_args2.a=0;
-  os.schedule_args=&srr_args;
+  //os.schedule_args=&srr_args;
   os.schedule_args=&srr_args2;
-  os.schedule_fn=schedRR;
+  //os.schedule_fn=schedRR;
   os.schedule_fn=schedSJF;
   
   for (int i=1; i<argc; ++i){
