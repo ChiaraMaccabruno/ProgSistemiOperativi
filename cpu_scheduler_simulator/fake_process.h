@@ -7,7 +7,7 @@ typedef enum {CPU=0, IO=1} ResourceType;
 typedef struct {
   ListItem list;
   ResourceType type;
-  int duration;
+  int duration; //durata evento
 } ProcessEvent;
 
 // fake process
