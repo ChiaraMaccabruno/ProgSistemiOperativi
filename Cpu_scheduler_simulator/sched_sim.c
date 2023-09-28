@@ -49,7 +49,7 @@ void schedRR(FakeOS* os, void* args_){
 };
 */
 
-ListItem* procmin(FakeOS* os, void* args_){
+ListItem* procmin(FakeOS* os){
   if(! os->ready.first)
     return NULL;
 
@@ -88,6 +88,21 @@ void schedSJF(FakeOS* os, void* args_){
     return;
 
   //Effettuare prelazione 
+  //Tolgo dalla ready list il mproc
+
+  while(os->ready.first){
+    //Tolgo dalla ready list il mproc
+    ListItem* elem = List_detach(&os->ready, procmin(os));
+    //Lo inserisco 
+      
+    FakePCB* pcb = (FakePCB*) List_pushFront(&os->running, elem);
+    //Il processo affiorante entra nello stato di running
+    //pcb = (FakePCB*) List_popFront(&os->ready);
+    os->running.first=(ListItem*)pcb;
+    printf("okkkkkkkk\n");
+    
+  }
+  
 
   
 
@@ -99,7 +114,7 @@ int main(int argc, char** argv) {
   SchedSJFArgs srr_args2;
   //srr_args.quantum=5;
   srr_args2.quantum=5;
-  srr_args2.a=0;
+  srr_args2.a = 0.5;
   //os.schedule_args=&srr_args;
   os.schedule_args=&srr_args2;
   //os.schedule_fn=schedRR;
@@ -117,7 +132,7 @@ int main(int argc, char** argv) {
     }
   }
   printf("num processes in queue %d\n", os.processes.size);
-  while(os.running
+  while(os.running.first
         || os.ready.first
         || os.waiting.first
         || os.processes.first){

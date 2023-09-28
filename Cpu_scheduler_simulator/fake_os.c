@@ -5,7 +5,7 @@
 #include "fake_os.h"
 
 void FakeOS_init(FakeOS* os) {
-  os->running=0;
+  List_init(&os->running);
   List_init(&os->ready);
   List_init(&os->waiting);
   List_init(&os->processes);
@@ -19,7 +19,11 @@ void FakeOS_createProcess(FakeOS* os, FakeProcess* p) {
   // we check that in the list of PCBs there is no
   // pcb having the same pid
   //Verifico se il pid del processo che caricando sia diverso dal pcb di running
-  assert( (!os->running || os->running->pid!=p->pid) && "pid taken");
+
+  /*-------------------------------------
+  MODIFICAAA!!!!!
+  assert( (!os->running || os->running->pid!=p->pid) && "pid taken"); 
+  --------------------------------------*/
 
   ListItem* aux=os->ready.first;
   while(aux){
@@ -129,51 +133,60 @@ void FakeOS_simStep(FakeOS* os){
   // if event over, destroy event
   // and reschedule process
   // if last event, destroy running
-  FakePCB* running=os->running;
+
+  //STESSA COSA DI WAITING E READY
+
+  //Consideriamo l'unico processo in running 
+  
+  FakePCB* running=(FakePCB*)&os->running;
   printf("\trunning pid: %d\n", running?running->pid:-1);
   if (running) {
+    //Essendo running una lista di eventi, prendiamo il primo evento che è di tipo CPU
     ProcessEvent* e=(ProcessEvent*) running->events.first;
     assert(e->type==CPU);
+    //Decrementiamo durata
     e->duration--;
     printf("\t\tremaining time:%d\n",e->duration);
-    if (e->duration==0){
-      //se è nulla abbiamo consumato il burst e togliamo l'evento dalla lista
-      printf("\t\tend burst\n");
-      List_popFront(&running->events);
-      free(e);
-      if (! running->events.first) {
-        //se non ci sono più eventi del processo allora il processo è terminato
-        printf("\t\tend process\n");
-        free(running); // kill process
-      } else {
-        //si prende evento successivo  
-        e=(ProcessEvent*) running->events.first;
-        switch (e->type){
-        case CPU:
-          printf("\t\tmove to ready\n");
-          List_pushBack(&os->ready, (ListItem*) running);
-          break;
-        case IO:
-          printf("\t\tmove to waiting\n");
-          List_pushBack(&os->waiting, (ListItem*) running);
-          break;
-        }
-      }
-      os->running = 0;
-    }
+      if (e->duration==0){
+        //se è nulla abbiamo consumato il burst e togliamo l'evento dalla lista
+        printf("\t\tend burst\n");
+        List_popFront(&running->events);
+        free(e);
+        if (! running->events.first) {
+          //se non ci sono più eventi del processo allora il processo è terminato
+          printf("\t\tend process\n");
+          free(running); // kill process
+          } else {
+            //si prende evento successivo  
+            e=(ProcessEvent*) running->events.first;
+            switch (e->type){
+              case CPU:
+              printf("\t\tmove to ready\n");
+              List_pushBack(&os->ready, (ListItem*) running);
+              break;
+              case IO:
+              printf("\t\tmove to waiting\n");
+              List_pushBack(&os->waiting, (ListItem*) running);
+              break;
+              }
+            }
+       }
   }
 
 
   // call schedule, if defined
-  if (os->schedule_fn && ! os->running){
+  if (os->schedule_fn && ! &os->running){
     (*os->schedule_fn)(os, os->schedule_args); 
   }
 
+/*
   // if running not defined and ready queue not empty
   // put the first in ready to run
   if (! os->running && os->ready.first) {
     os->running=(FakePCB*) List_popFront(&os->ready);
   }
+*/
+
 
   ++os->timer;
 
