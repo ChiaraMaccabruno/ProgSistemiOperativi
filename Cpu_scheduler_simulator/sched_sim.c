@@ -67,8 +67,8 @@ ListItem* procmin(FakeOS* os){
     ProcessEvent* e = (ProcessEvent*)pcb->events.first;
 
     //cerco il CPU burst minimo
-    if(e->duration < min){
-      min = e->duration;
+    if(e->proxburst < min){
+      min = e->proxburst;
       mproc = pproc;
     }
     //vado al processo successivo
@@ -100,7 +100,24 @@ void schedSJF(FakeOS* os, void* args_){
     //pcb = (FakePCB*) List_popFront(&os->ready);
     os->running.first=(ListItem*)pcb;
     printf("okkkkkkkk\n");
-    
+
+    assert(pcb->events.first);
+    ProcessEvent* e = (ProcessEvent*)pcb->events.first;
+    assert(e->type==CPU);
+
+    //Modifica
+    e->proxburst = (e->duration)*(args->a)+(1-args->a)*e->precburst;
+  
+
+
+    if (e->duration>args->quantum) {
+      ProcessEvent* qe=(ProcessEvent*)malloc(sizeof(ProcessEvent));
+      qe->list.prev=qe->list.next=0;
+      qe->type=CPU;
+      qe->duration=args->quantum;
+      e->duration-=args->quantum;
+      List_pushFront(&pcb->events, (ListItem*)qe);
+    }
   }
   
 
@@ -114,7 +131,7 @@ int main(int argc, char** argv) {
   SchedSJFArgs srr_args2;
   //srr_args.quantum=5;
   srr_args2.quantum=5;
-  srr_args2.a = 0.5;
+  srr_args2.a = 0;
   //os.schedule_args=&srr_args;
   os.schedule_args=&srr_args2;
   //os.schedule_fn=schedRR;

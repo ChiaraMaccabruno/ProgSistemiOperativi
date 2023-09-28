@@ -138,7 +138,8 @@ void FakeOS_simStep(FakeOS* os){
 
   //Consideriamo l'unico processo in running 
   
-  FakePCB* running=(FakePCB*)&os->running;
+  ListItem* aux2 = os->running.first;
+  FakePCB* running=(FakePCB*) aux2;
   printf("\trunning pid: %d\n", running?running->pid:-1);
   if (running) {
     //Essendo running una lista di eventi, prendiamo il primo evento che è di tipo CPU
@@ -175,7 +176,7 @@ void FakeOS_simStep(FakeOS* os){
 
 
   // call schedule, if defined
-  if (os->schedule_fn && ! &os->running){
+  if (os->schedule_fn /*&& ! &os->running*/){
     (*os->schedule_fn)(os, os->schedule_args); 
   }
 
