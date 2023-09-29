@@ -20,12 +20,11 @@ void FakeOS_createProcess(FakeOS* os, FakeProcess* p) {
   // pcb having the same pid
   //Verifico se il pid del processo che caricando sia diverso dal pcb di running
 
-  /*-------------------------------------
-  MODIFICAAA!!!!!
-  assert( (!os->running || os->running->pid!=p->pid) && "pid taken"); 
-  --------------------------------------*/
+  ListItem* aux=os->running.first;
+  FakePCB* run = (FakePCB*) aux;
+  assert( (!run|| run->pid!=p->pid) && "pid taken");
 
-  ListItem* aux=os->ready.first;
+  aux=os->ready.first;
   while(aux){
     FakePCB* pcb=(FakePCB*)aux;
     assert(pcb->pid!=p->pid && "pid taken");

@@ -15,7 +15,7 @@ typedef struct {
 //scheduler SJF
 typedef struct {
   int quantum;
-  int a;
+  float a;
 } SchedSJFArgs;
 
 /*
@@ -67,17 +67,17 @@ ListItem* procmin(FakeOS* os){
     ProcessEvent* e = (ProcessEvent*)pcb->events.first;
 
     //cerco il CPU burst minimo
-    if(e->proxburst < min){
+    if(e->proxburst >= 0 && e->proxburst < min){
       min = e->proxburst;
       mproc = pproc;
     }
     //vado al processo successivo
     pproc = pproc->next;
   }
-  return mproc;
   FakePCB* elem = (FakePCB*) mproc;
   printf("Il processo con il burst minimo è: %d\n", elem->pid);
   printf("Ho trovato il burst minimo: %d\n", min);
+  return mproc;
 }
 
 void schedSJF(FakeOS* os, void* args_){
@@ -105,9 +105,24 @@ void schedSJF(FakeOS* os, void* args_){
     ProcessEvent* e = (ProcessEvent*)pcb->events.first;
     assert(e->type==CPU);
 
+    if (os->running.first) {
+      ListItem* item = os->running.first;
+      printf("Lista running: ");
+      while(item){
+        FakePCB* elem = (FakePCB*) item;
+        printf("%d ", elem->pid);
+        item = item->next;
+      }
+      printf("\n");
+    }
+
     //Modifica
-    e->proxburst = (e->duration)*(args->a)+(1-args->a)*e->precburst;
-  
+    if(e->duration != 0){
+      printf("durata: %d\n", e->duration);
+      e->proxburst = (e->duration)*(args->a)+(1-args->a)*e->precburst;
+      printf("proxburst: %d\n", e->proxburst);
+    }
+    
 
 
     if (e->duration>args->quantum) {
@@ -131,7 +146,7 @@ int main(int argc, char** argv) {
   SchedSJFArgs srr_args2;
   //srr_args.quantum=5;
   srr_args2.quantum=5;
-  srr_args2.a = 0;
+  srr_args2.a=0.5;
   //os.schedule_args=&srr_args;
   os.schedule_args=&srr_args2;
   //os.schedule_fn=schedRR;
