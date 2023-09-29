@@ -16,6 +16,7 @@ typedef struct {
 typedef struct {
   int quantum;
   float a;
+  int cpu;
 } SchedSJFArgs;
 
 /*
@@ -82,6 +83,8 @@ ListItem* procmin(FakeOS* os){
 
 void schedSJF(FakeOS* os, void* args_){
   SchedSJFArgs* args=(SchedSJFArgs*)args_;
+  int i = 0;
+  int freecpu = args->cpu;
 
   //Se non è più presente processo in ready
   if(! os->ready.first)
@@ -91,8 +94,11 @@ void schedSJF(FakeOS* os, void* args_){
   //Tolgo dalla ready list il mproc
 
   while(os->ready.first){
+    //Verifichiamo che ci siano cpu libere
     //Tolgo dalla ready list il mproc
     ListItem* elem = List_detach(&os->ready, procmin(os));
+
+    if(freecpu > 0){
     //Lo inserisco 
       
     FakePCB* pcb = (FakePCB*) List_pushFront(&os->running, elem);
@@ -122,8 +128,6 @@ void schedSJF(FakeOS* os, void* args_){
       e->proxburst = (e->duration)*(args->a)+(1-args->a)*e->precburst;
       printf("proxburst: %d\n", e->proxburst);
     }
-    
-
 
     if (e->duration>args->quantum) {
       ProcessEvent* qe=(ProcessEvent*)malloc(sizeof(ProcessEvent));
@@ -133,10 +137,12 @@ void schedSJF(FakeOS* os, void* args_){
       e->duration-=args->quantum;
       List_pushFront(&pcb->events, (ListItem*)qe);
     }
-  }
-  
 
-  
+    freecpu--;
+  }else{
+    
+  }
+  }  
 
 };
 
@@ -147,6 +153,7 @@ int main(int argc, char** argv) {
   //srr_args.quantum=5;
   srr_args2.quantum=5;
   srr_args2.a=0.5;
+  srr_args2.cpu=2;
   //os.schedule_args=&srr_args;
   os.schedule_args=&srr_args2;
   //os.schedule_fn=schedRR;
