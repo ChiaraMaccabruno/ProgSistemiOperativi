@@ -134,44 +134,47 @@ void FakeOS_simStep(FakeOS* os){
   // and reschedule process
   // if last event, destroy running
 
-  //STESSA COSA DI WAITING E READY
-
   //Consideriamo l'unico processo in running 
-  
+  //aux contiene processo in running
   ListItem* aux2 = os->running.first;
-  FakePCB* running=(FakePCB*) aux2;
-  printf("\trunning pid: %d\n", running?running->pid:-1);
-  if (running) {
+
+  while(aux2) {
+    FakePCB* running=(FakePCB*) aux2;
+    printf("\trunning pid: %d\n", running?running->pid:-1);
+    
+    aux2 = aux2->next;
     //Essendo running una lista di eventi, prendiamo il primo evento che è di tipo CPU
     ProcessEvent* e=(ProcessEvent*) running->events.first;
     assert(e->type==CPU);
     //Decrementiamo durata
     e->duration--;
     printf("\t\tremaining time:%d\n",e->duration);
-      if (e->duration==0){
-        //se è nulla abbiamo consumato il burst e togliamo l'evento dalla lista
-        printf("\t\tend burst\n");
-        List_popFront(&running->events);
-        free(e);
-        if (! running->events.first) {
-          //se non ci sono più eventi del processo allora il processo è terminato
-          printf("\t\tend process\n");
-          free(running); // kill process
-          } else {
-            //si prende evento successivo  
-            e=(ProcessEvent*) running->events.first;
-            switch (e->type){
-              case CPU:
-              printf("\t\tmove to ready\n");
-              List_pushBack(&os->ready, (ListItem*) running);
-              break;
-              case IO:
-              printf("\t\tmove to waiting\n");
-              List_pushBack(&os->waiting, (ListItem*) running);
-              break;
-              }
-            }
-       }
+    if (e->duration==0){
+      //se è nulla abbiamo consumato il burst e togliamo l'evento dalla lista
+      printf("\t\tend burst\n");
+      List_popFront(&running->events);
+      free(e);
+      List_detach(&os->running, (ListItem*)running);
+      
+      if (! running->events.first) {
+        //se non ci sono più eventi del processo allora il processo è terminato
+        printf("\t\tend process\n");
+        free(running); // kill process
+      } else {
+        //si prende evento successivo  
+        e=(ProcessEvent*) running->events.first;
+        switch (e->type){
+        case CPU:
+          printf("\t\tmove to ready\n");
+          List_pushBack(&os->ready, (ListItem*) running);
+          break;
+        case IO:
+          printf("\t\tmove to waiting\n");
+          List_pushBack(&os->waiting, (ListItem*) running);
+          break;
+        }
+      }
+    }
   }
 
 
