@@ -17,6 +17,7 @@ typedef struct {
   int quantum;
   float a;
   int cpu;
+  int freecpu;
 } SchedSJFArgs;
 
 /*
@@ -83,8 +84,6 @@ ListItem* procmin(FakeOS* os){
 
 void schedSJF(FakeOS* os, void* args_){
   SchedSJFArgs* args=(SchedSJFArgs*)args_;
-  int i = 0;
-  int freecpu = args->cpu;
 
   //Se non è più presente processo in ready
   if(! os->ready.first)
@@ -93,15 +92,18 @@ void schedSJF(FakeOS* os, void* args_){
   //Effettuare prelazione 
   //Tolgo dalla ready list il mproc
 
+  //Inizia un ciclo che continua finché ci sono processi nella lista dei processi pronti
   while(os->ready.first){
     //Verifichiamo che ci siano cpu libere
-    //Tolgo dalla ready list il mproc
+    //Tolgo dalla ready list il mproc, il processo con il burst CPU minimo
     ListItem* elem = List_detach(&os->ready, procmin(os));
 
-    if(freecpu > 0){
+    //Se ci sono CPU libere
+    if(args->freecpu > 0){
+    
     //Lo inserisco 
-      
-    FakePCB* pcb = (FakePCB*) List_pushFront(&os->running, elem);
+    FakePCB* pcb = (FakePCB*)elem; 
+    List_pushFront(&os->running, elem);
     //Il processo affiorante entra nello stato di running
     //pcb = (FakePCB*) List_popFront(&os->ready);
     os->running.first=(ListItem*)pcb;
@@ -137,10 +139,65 @@ void schedSJF(FakeOS* os, void* args_){
       e->duration-=args->quantum;
       List_pushFront(&pcb->events, (ListItem*)qe);
     }
-
-    freecpu--;
+    if(args->freecpu > 0){
+      args->freecpu--;
+      printf("Il numero di cpu è: %d\n", args->freecpu);
+    }
   }else{
+    //prendo elementi nella lista di running
+    ListItem* runningElem = os->running.first;
+    FakePCB* runningPCB = (FakePCB*)runningElem;
     
+    ProcessEvent* runningEvent = (ProcessEvent*)runningPCB->events.first;
+
+    runningEvent->proxburst = (runningEvent->duration)*(args->a)+(1-args->a)*runningEvent->precburst;
+
+    //prendo nuovo processo in arrivo e ne calcolo 
+    FakePCB* pcb = (FakePCB*)elem;
+    //assert(pcb->events.first);
+    ProcessEvent* e = (ProcessEvent*)pcb->events.first;
+    //assert(e->type==CPU);
+    e->proxburst = (e->duration)*(args->a)+(1-args->a)*e->precburst;
+    
+    //Trovo processo in esecuzione con il burst CPU maggiore
+    ListItem* maxBurstElem = runningElem;
+    FakePCB* maxBurstPCB = runningPCB;
+    ProcessEvent* maxBurstEvent = runningEvent;
+    maxBurstEvent->proxburst = runningEvent->proxburst;
+    printf("-----------------: %d\n", runningEvent->proxburst);
+    printf("-----------------: %d\n", maxBurstEvent->proxburst);
+
+    while(runningElem!=NULL){//scorro lista running
+      FakePCB* appoggioPCB = (FakePCB*)runningElem;
+      printf("runningElem: %d\n", appoggioPCB->pid);
+      printf("aaaaaaa\n");
+      ProcessEvent* appoggioEvent = (ProcessEvent*)appoggioPCB->events.first;
+      printf("bbbbbbb\n");
+      appoggioEvent->proxburst = (appoggioEvent->duration)*(args->a)+(1-args->a)*appoggioEvent->precburst;
+      printf("ccccc: %d\n", appoggioEvent->proxburst);
+      maxBurstEvent->proxburst = (maxBurstEvent->duration)*(args->a)+(1-args->a)*maxBurstEvent->precburst;
+      printf("eeeee: %d\n", maxBurstEvent->proxburst);
+      if(appoggioEvent->proxburst > maxBurstEvent->proxburst){
+        printf("ddddddd\n");
+        maxBurstElem = runningElem;
+        maxBurstPCB = appoggioPCB;
+        maxBurstEvent = appoggioEvent;
+      }else{
+        printf("ggggggg\n");
+      }
+      printf("fffffff\n");
+      runningElem = runningElem->next;
+      
+    }
+
+    //se burst CPU del processo appena arrivato è minore del massimo avviene prelazione
+    if(e->proxburst < maxBurstEvent->proxburst){
+      List_detach(&os->running, maxBurstElem);
+      List_pushFront(&os->ready, maxBurstElem);
+      List_pushFront(&os->running, elem);
+    }else{
+      List_pushBack(&os->ready, elem);
+    }
   }
   }  
 
@@ -154,6 +211,7 @@ int main(int argc, char** argv) {
   srr_args2.quantum=5;
   srr_args2.a=0.5;
   srr_args2.cpu=2;
+  srr_args2.freecpu=srr_args2.cpu;
   //os.schedule_args=&srr_args;
   os.schedule_args=&srr_args2;
   //os.schedule_fn=schedRR;
