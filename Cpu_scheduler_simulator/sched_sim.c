@@ -99,7 +99,8 @@ void schedSJF(FakeOS* os, void* args_){
     ListItem* elem = List_detach(&os->ready, procmin(os));
 
     //Se ci sono CPU libere
-    if(args->freecpu > 0){
+    if(args->freecpu != 0){
+      //if(os->running.size < args->cpu){
     
     //Lo inserisco 
     FakePCB* pcb = (FakePCB*)elem; 
@@ -139,11 +140,15 @@ void schedSJF(FakeOS* os, void* args_){
       e->duration-=args->quantum;
       List_pushFront(&pcb->events, (ListItem*)qe);
     }
-    if(args->freecpu > 0){
+    
       args->freecpu--;
       printf("Il numero di cpu è: %d\n", args->freecpu);
-    }
+    
+    //}
   }else{
+    printf("Cpu tutte occupate\n");
+  }
+  /*else{
     //prendo elementi nella lista di running
     ListItem* runningElem = os->running.first;
     FakePCB* runningPCB = (FakePCB*)runningElem;
@@ -198,7 +203,7 @@ void schedSJF(FakeOS* os, void* args_){
     }else{
       List_pushBack(&os->ready, elem);
     }
-  }
+  }*/
   }  
 
 };
@@ -210,7 +215,7 @@ int main(int argc, char** argv) {
   //srr_args.quantum=5;
   srr_args2.quantum=5;
   srr_args2.a=0.5;
-  srr_args2.cpu=2;
+  srr_args2.cpu=1;
   srr_args2.freecpu=srr_args2.cpu;
   //os.schedule_args=&srr_args;
   os.schedule_args=&srr_args2;
