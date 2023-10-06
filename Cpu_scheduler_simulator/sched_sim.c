@@ -84,6 +84,7 @@ ListItem* procmin(FakeOS* os){
 
 void schedSJF(FakeOS* os, void* args_){
   SchedSJFArgs* args=(SchedSJFArgs*)args_;
+  int cont = args->cpu;
 
   //Se non è più presente processo in ready
   if(! os->ready.first)
@@ -93,13 +94,13 @@ void schedSJF(FakeOS* os, void* args_){
   //Tolgo dalla ready list il mproc
 
   //Inizia un ciclo che continua finché ci sono processi nella lista dei processi pronti
-  while(os->ready.first){
+  while(os->ready.first && cont > 0){
     //Verifichiamo che ci siano cpu libere
     //Tolgo dalla ready list il mproc, il processo con il burst CPU minimo
     ListItem* elem = List_detach(&os->ready, procmin(os));
 
     //Se ci sono CPU libere
-    if(args->freecpu != 0){
+    //if(args->freecpu != 0){
       //if(os->running.size < args->cpu){
     
     //Lo inserisco 
@@ -141,13 +142,13 @@ void schedSJF(FakeOS* os, void* args_){
       List_pushFront(&pcb->events, (ListItem*)qe);
     }
     
-      args->freecpu--;
-      printf("Il numero di cpu è: %d\n", args->freecpu);
+     cont--;
+     printf("Il numero di cpu è: %d\n", cont);
     
     //}
-  }else{
-    printf("Cpu tutte occupate\n");
-  }
+ // }else{
+   // printf("Cpu tutte occupate\n");
+  //}
   /*else{
     //prendo elementi nella lista di running
     ListItem* runningElem = os->running.first;
