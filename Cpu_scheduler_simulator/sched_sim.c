@@ -6,7 +6,7 @@
 
 FakeOS os;
 
-int cont=0;
+int cont2=0;
 
 /*
 typedef struct {
@@ -121,14 +121,14 @@ void schedSJF(FakeOS* os, void* args_){
       ListItem* item = os->running.first;
       printf("Lista running: ");
       while(item){
-        cont = cont+1;
+        cont2 = cont2+1;
         FakePCB* elem = (FakePCB*) item;
         printf("%d ", elem->pid);
         item = item->next;
       }
       printf("\n");
     }
-    args->cont = cont;
+    args->cont = cont2;
     printf("%d\n", args->cont);
 
     //Modifica
@@ -148,7 +148,7 @@ void schedSJF(FakeOS* os, void* args_){
       List_pushFront(&pcb->events, (ListItem*)qe);
     }
 
-    printf("Il numero di cpu è: %d\n", cont);
+    printf("Il numero di cpu è: %d\n", cont2);
     
     //}
  // }else{
