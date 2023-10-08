@@ -6,8 +6,6 @@
 
 FakeOS os;
 
-int cont2=0;
-
 /*
 typedef struct {
   int quantum;
@@ -84,6 +82,16 @@ ListItem* procmin(FakeOS* os){
   return mproc;
 }
 
+int lenghtrunning(FakeOS* os){
+  int lunghezza = 0;
+  ListItem* elem = os->running.first;
+  while(elem!=NULL){
+    lunghezza++;
+    elem = elem->next;
+  }
+  return lunghezza;
+}
+
 void schedSJF(FakeOS* os, void* args_){
   SchedSJFArgs* args=(SchedSJFArgs*)args_;
   //Se non è più presente processo in ready
@@ -94,8 +102,8 @@ void schedSJF(FakeOS* os, void* args_){
   //Tolgo dalla ready list il mproc
 
   //Inizia un ciclo che continua finché ci sono processi nella lista dei processi pronti
-  while(os->ready.first && args->cont < args->cpu){
-    printf("%d\n", args->cont);
+  while(os->ready.first && lenghtrunning(os) < args->cpu){
+    printf("%d\n", lenghtrunning(os));
     printf("%d\n", args->cpu);
     //Verifichiamo che ci siano cpu libere
     //Tolgo dalla ready list il mproc, il processo con il burst CPU minimo
@@ -121,22 +129,18 @@ void schedSJF(FakeOS* os, void* args_){
       ListItem* item = os->running.first;
       printf("Lista running: ");
       while(item){
-        cont2 = cont2+1;
         FakePCB* elem = (FakePCB*) item;
         printf("%d ", elem->pid);
         item = item->next;
       }
       printf("\n");
     }
-    args->cont = cont2;
-    printf("%d\n", args->cont);
-
+    
     //Modifica
     if(e->duration != 0){
       printf("durata: %d\n", e->duration);
       e->proxburst = (e->duration)*(args->a)+(1-args->a)*e->precburst;
       printf("proxburst: %d\n", e->proxburst);
-
     }
 
     if (e->duration>args->quantum) {
@@ -147,8 +151,6 @@ void schedSJF(FakeOS* os, void* args_){
       e->duration-=args->quantum;
       List_pushFront(&pcb->events, (ListItem*)qe);
     }
-
-    printf("Il numero di cpu è: %d\n", cont2);
     
     //}
  // }else{
@@ -221,8 +223,7 @@ int main(int argc, char** argv) {
   //srr_args.quantum=5;
   srr_args2.quantum=5;
   srr_args2.a=0.5;
-  srr_args2.cpu=1;
-  srr_args2.cont=0;
+  srr_args2.cpu=2;
   //os.schedule_args=&srr_args;
   os.schedule_args=&srr_args2;
   //os.schedule_fn=schedRR;
