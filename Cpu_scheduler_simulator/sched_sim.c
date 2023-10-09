@@ -6,50 +6,12 @@
 
 FakeOS os;
 
-/*
-typedef struct {
-  int quantum;
-} SchedRRArgs;
-*/
-
 //scheduler SJF
 typedef struct {
   int quantum;
   float a;
   int cpu;
-  int cont;
 } SchedSJFArgs;
-
-/*
-void schedRR(FakeOS* os, void* args_){
-  SchedRRArgs* args=(SchedRRArgs*)args_;
-
-  // look for the first process in ready
-  // if none, return
-  if (! os->ready.first)
-    return;
-
-  FakePCB* pcb=(FakePCB*) List_popFront(&os->ready);
-  os->running=pcb;
-  
-  assert(pcb->events.first);
-  ProcessEvent* e = (ProcessEvent*)pcb->events.first;
-  assert(e->type==CPU);
-
-  // look at the first event
-  // if duration>quantum
-  // push front in the list of event a CPU event of duration quantum
-  // alter the duration of the old event subtracting quantum
-  if (e->duration>args->quantum) {
-    ProcessEvent* qe=(ProcessEvent*)malloc(sizeof(ProcessEvent));
-    qe->list.prev=qe->list.next=0;
-    qe->type=CPU;
-    qe->duration=args->quantum;
-    e->duration-=args->quantum;
-    List_pushFront(&pcb->events, (ListItem*)qe);
-  }
-};
-*/
 
 ListItem* procmin(FakeOS* os){
   if(! os->ready.first)
@@ -103,15 +65,11 @@ void schedSJF(FakeOS* os, void* args_){
 
   //Inizia un ciclo che continua finché ci sono processi nella lista dei processi pronti
   while(os->ready.first && lenghtrunning(os) < args->cpu){
-    printf("%d\n", lenghtrunning(os));
-    printf("%d\n", args->cpu);
+    printf("Lunghezza della lista di running: %d\n", lenghtrunning(os));
+    printf("Numero di cpu: %d\n", args->cpu);
     //Verifichiamo che ci siano cpu libere
     //Tolgo dalla ready list il mproc, il processo con il burst CPU minimo
     ListItem* elem = List_detach(&os->ready, procmin(os));
-
-    //Se ci sono CPU libere
-    //if(args->freecpu != 0){
-      //if(os->running.size < args->cpu){
     
     //Lo inserisco 
     FakePCB* pcb = (FakePCB*)elem; 
@@ -120,6 +78,7 @@ void schedSJF(FakeOS* os, void* args_){
     //pcb = (FakePCB*) List_popFront(&os->ready);
     os->running.first=(ListItem*)pcb;
     printf("okkkkkkkk\n");
+    printf(" \n");
 
     assert(pcb->events.first);
     ProcessEvent* e = (ProcessEvent*)pcb->events.first;
@@ -151,82 +110,18 @@ void schedSJF(FakeOS* os, void* args_){
       e->duration-=args->quantum;
       List_pushFront(&pcb->events, (ListItem*)qe);
     }
-    
-    //}
- // }else{
-   // printf("Cpu tutte occupate\n");
-  //}
-  /*else{
-    //prendo elementi nella lista di running
-    ListItem* runningElem = os->running.first;
-    FakePCB* runningPCB = (FakePCB*)runningElem;
-    
-    ProcessEvent* runningEvent = (ProcessEvent*)runningPCB->events.first;
-
-    runningEvent->proxburst = (runningEvent->duration)*(args->a)+(1-args->a)*runningEvent->precburst;
-
-    //prendo nuovo processo in arrivo e ne calcolo 
-    FakePCB* pcb = (FakePCB*)elem;
-    //assert(pcb->events.first);
-    ProcessEvent* e = (ProcessEvent*)pcb->events.first;
-    //assert(e->type==CPU);
-    e->proxburst = (e->duration)*(args->a)+(1-args->a)*e->precburst;
-    
-    //Trovo processo in esecuzione con il burst CPU maggiore
-    ListItem* maxBurstElem = runningElem;
-    FakePCB* maxBurstPCB = runningPCB;
-    ProcessEvent* maxBurstEvent = runningEvent;
-    maxBurstEvent->proxburst = runningEvent->proxburst;
-    printf("-----------------: %d\n", runningEvent->proxburst);
-    printf("-----------------: %d\n", maxBurstEvent->proxburst);
-
-    while(runningElem!=NULL){//scorro lista running
-      FakePCB* appoggioPCB = (FakePCB*)runningElem;
-      printf("runningElem: %d\n", appoggioPCB->pid);
-      printf("aaaaaaa\n");
-      ProcessEvent* appoggioEvent = (ProcessEvent*)appoggioPCB->events.first;
-      printf("bbbbbbb\n");
-      appoggioEvent->proxburst = (appoggioEvent->duration)*(args->a)+(1-args->a)*appoggioEvent->precburst;
-      printf("ccccc: %d\n", appoggioEvent->proxburst);
-      maxBurstEvent->proxburst = (maxBurstEvent->duration)*(args->a)+(1-args->a)*maxBurstEvent->precburst;
-      printf("eeeee: %d\n", maxBurstEvent->proxburst);
-      if(appoggioEvent->proxburst > maxBurstEvent->proxburst){
-        printf("ddddddd\n");
-        maxBurstElem = runningElem;
-        maxBurstPCB = appoggioPCB;
-        maxBurstEvent = appoggioEvent;
-      }else{
-        printf("ggggggg\n");
-      }
-      printf("fffffff\n");
-      runningElem = runningElem->next;
-      
-    }
-
-    //se burst CPU del processo appena arrivato è minore del massimo avviene prelazione
-    if(e->proxburst < maxBurstEvent->proxburst){
-      List_detach(&os->running, maxBurstElem);
-      List_pushFront(&os->ready, maxBurstElem);
-      List_pushFront(&os->running, elem);
-    }else{
-      List_pushBack(&os->ready, elem);
-    }
-  }*/
   } 
   
 };
 
 int main(int argc, char** argv) {
   FakeOS_init(&os);
-  //SchedRRArgs srr_args;
+  
   SchedSJFArgs srr_args2;
-  //srr_args.quantum=5;
   srr_args2.quantum=5;
   srr_args2.a=0.5;
-  srr_args2.cpu=2;
-  //os.schedule_args=&srr_args;
+  srr_args2.cpu=100;
   os.schedule_args=&srr_args2;
-  //os.schedule_fn=schedRR;
   os.schedule_fn=schedSJF;
   
   for (int i=1; i<argc; ++i){
