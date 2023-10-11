@@ -181,16 +181,6 @@ void FakeOS_simStep(FakeOS* os){
   if (os->schedule_fn /*&& ! &os->running*/){
     (*os->schedule_fn)(os, os->schedule_args); 
   }
-
-/*
-  // if running not defined and ready queue not empty
-  // put the first in ready to run
-  if (! os->running && os->ready.first) {
-    os->running=(FakePCB*) List_popFront(&os->ready);
-  }
-*/
-
-
   ++os->timer;
 
 }

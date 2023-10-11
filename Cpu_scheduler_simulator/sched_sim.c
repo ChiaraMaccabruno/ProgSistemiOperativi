@@ -40,7 +40,6 @@ ListItem* procmin(FakeOS* os){
   }
   FakePCB* elem = (FakePCB*) mproc;
   printf("Il processo con il burst minimo è: %d\n", elem->pid);
-  printf("Ho trovato il burst minimo: %d\n", min);
   return mproc;
 }
 
@@ -135,8 +134,6 @@ int main(int argc, char** argv) {
       List_pushBack(&os.processes, (ListItem*)new_process_ptr);
     }
   }
-
-
 
   printf("num processes in queue %d\n", os.processes.size);
   while(os.running.first
