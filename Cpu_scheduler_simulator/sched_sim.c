@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
   SchedSJFArgs srr_args2;
   srr_args2.quantum=5;
   srr_args2.a=0.5;
-  srr_args2.cpu=100;
+  srr_args2.cpu=atoi(argv[1]);
   os.schedule_args=&srr_args2;
   os.schedule_fn=schedSJF;
   
@@ -135,6 +135,9 @@ int main(int argc, char** argv) {
       List_pushBack(&os.processes, (ListItem*)new_process_ptr);
     }
   }
+
+
+
   printf("num processes in queue %d\n", os.processes.size);
   while(os.running.first
         || os.ready.first
