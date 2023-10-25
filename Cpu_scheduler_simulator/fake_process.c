@@ -39,6 +39,7 @@ int FakeProcess_load(FakeProcess* p, const char* filename) {
       //Variabile che tiene traccia della durata dei burst
       e->precburst=0;
       e->proxburst=0;
+
       List_pushBack(&p->events, (ListItem*)e);
       ++num_events;
       goto next_round;

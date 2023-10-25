@@ -22,6 +22,7 @@ typedef struct FakeOS{
   void* schedule_args;
 
   ListHead processes;
+  int cont;
 } FakeOS;
 
 void FakeOS_init(FakeOS* os);

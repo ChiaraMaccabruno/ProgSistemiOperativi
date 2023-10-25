@@ -83,6 +83,7 @@ void schedSJF(FakeOS* os, void* args_){
     ProcessEvent* e = (ProcessEvent*)pcb->events.first;
     assert(e->type==CPU);
 
+
     if (os->running.first) {
       ListItem* item = os->running.first;
       printf("Lista running: ");
@@ -93,12 +94,14 @@ void schedSJF(FakeOS* os, void* args_){
       }
       printf("\n");
     }
+
     
-    //Modifica
     if(e->duration != 0){
       printf("durata: %d\n", e->duration);
-      e->proxburst = (e->duration)*(args->a)+(1-args->a)*e->precburst;
+      e->proxburst = (os->cont)*(args->a)+(1-args->a)*e->precburst;
+      printf("Prova: %d\n", os->cont);
       printf("proxburst: %d\n", e->proxburst);
+      os->cont = 0;
     }
 
     if (e->duration>args->quantum) {
@@ -110,7 +113,6 @@ void schedSJF(FakeOS* os, void* args_){
       List_pushFront(&pcb->events, (ListItem*)qe);
     }
   } 
-  
 };
 
 int main(int argc, char** argv) {
@@ -123,7 +125,7 @@ int main(int argc, char** argv) {
   os.schedule_args=&srr_args2;
   os.schedule_fn=schedSJF;
   
-  for (int i=1; i<argc; ++i){
+  for (int i=2; i<argc; ++i){
     FakeProcess new_process;
     int num_events=FakeProcess_load(&new_process, argv[i]);
     printf("loading [%s], pid: %d, events:%d",

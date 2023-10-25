@@ -11,6 +11,7 @@ void FakeOS_init(FakeOS* os) {
   List_init(&os->processes);
   os->timer=0;
   os->schedule_fn=0;
+  os->cont=0;
 }
 
 void FakeOS_createProcess(FakeOS* os, FakeProcess* p) {
@@ -147,14 +148,16 @@ void FakeOS_simStep(FakeOS* os){
     assert(e->type==CPU);
     //Decrementiamo durata
     e->duration--;
+    os->cont++;
+
     printf("\t\tremaining time:%d\n",e->duration);
+    printf("\t\tprova2:%d\n",os->cont);
     if (e->duration==0){
       //se è nulla abbiamo consumato il burst e togliamo l'evento dalla lista
       printf("\t\tend burst\n");
       List_popFront(&running->events);
       free(e);
       List_detach(&os->running, (ListItem*)running);
-      
       if (! running->events.first) {
         //se non ci sono più eventi del processo allora il processo è terminato
         printf("\t\tend process\n");
@@ -173,7 +176,9 @@ void FakeOS_simStep(FakeOS* os){
           break;
         }
       }
+      
     }
+
   }
 
 
