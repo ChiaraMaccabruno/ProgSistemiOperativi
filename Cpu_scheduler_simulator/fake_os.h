@@ -7,6 +7,7 @@ typedef struct {
   ListItem list;
   int pid; //pid del processo
   ListHead events; //lista eventi del processo
+  int conta;
 } FakePCB;
 
 struct FakeOS;

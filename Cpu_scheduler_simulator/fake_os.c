@@ -45,6 +45,7 @@ void FakeOS_createProcess(FakeOS* os, FakeProcess* p) {
   new_pcb->list.next=new_pcb->list.prev=0;
   new_pcb->pid=p->pid;
   new_pcb->events=p->events;
+  new_pcb->conta=0;
 
   assert(new_pcb->events.first && "process without events");
 
@@ -141,23 +142,25 @@ void FakeOS_simStep(FakeOS* os){
   while(aux2) {
     FakePCB* running=(FakePCB*) aux2;
     printf("\trunning pid: %d\n", running?running->pid:-1);
-    
     aux2 = aux2->next;
     //Essendo running una lista di eventi, prendiamo il primo evento che è di tipo CPU
     ProcessEvent* e=(ProcessEvent*) running->events.first;
     assert(e->type==CPU);
     //Decrementiamo durata
     e->duration--;
-    os->cont++;
+    running->conta++;
+    os->cont = running->conta;
 
     printf("\t\tremaining time:%d\n",e->duration);
     printf("\t\tprova2:%d\n",os->cont);
+    
     if (e->duration==0){
       //se è nulla abbiamo consumato il burst e togliamo l'evento dalla lista
       printf("\t\tend burst\n");
       List_popFront(&running->events);
       free(e);
       List_detach(&os->running, (ListItem*)running);
+      running->conta=0;
       if (! running->events.first) {
         //se non ci sono più eventi del processo allora il processo è terminato
         printf("\t\tend process\n");
