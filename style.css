@@ -1,0 +1,19 @@
+#scorePanel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 5px;
+}
+.button {
+  display: block;
+  margin: 10px 0;
+  padding: 10px 20px;
+  background-color: #00BFFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" src="style.css" type="text/css">
+    <title>Tetris with Three.js</title>
+    <style>
+    body { margin: 0; overflow: hidden; }
+    #control-panel {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+    }
+    #control-panel button {
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #333;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+    #control-panel button:hover {
+        background-color: #555;
+    }
+    #control-panel {
+        color: #fff;
+    }
+    </style>
+</head>
+<body>
+    <div id="control-panel">
+        <p>Score: <span id="score">0</span></p>
+        <p>Level: <span id="level">1</span></p>
+        <button id="start-button">Start</button>
+        <button id="stop-button">Stop</button>
+        <button id="reset-button">Reset</button>
+    </div>
+    <script type="module" src="main.js"></script>
+    <script type="module" src="game.js"></script>
+    <!--<script>
+        // Inizializzazione della scena, della camera e del renderer
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Creazione del pavimento della fabbrica
+        var floorGeometry = new THREE.PlaneGeometry(200, 200, 10, 10);
+        var floorMaterial = new THREE.MeshStandardMaterial({ color: 0x808080, side: THREE.DoubleSide });
+        var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2; // Posiziona il pavimento orizzontalmente
+        scene.add(floor);
+
+        // Creazione di pareti per la fabbrica (esempio)
+        var wallGeometry = new THREE.BoxGeometry(200, 100, 10);
+        var wallMaterial = new THREE.MeshStandardMaterial({ color: 0xCCCCCC });
+        var wall1 = new THREE.Mesh(wallGeometry, wallMaterial);
+        wall1.position.set(0, 50, -100);
+        scene.add(wall1);
+
+        var wall2 = new THREE.Mesh(wallGeometry, wallMaterial);
+        wall2.position.set(0, 50, 100);
+        scene.add(wall2);
+
+        var wall3 = new THREE.Mesh(new THREE.BoxGeometry(10, 100, 200), wallMaterial);
+        wall3.position.set(-100, 50, 0);
+        scene.add(wall3);
+
+        var wall4 = new THREE.Mesh(new THREE.BoxGeometry(10, 100, 200), wallMaterial);
+        wall4.position.set(100, 50, 0);
+        scene.add(wall4);
+
+        // Aggiunta di una luce per illuminare la scena
+        var ambientLight = new THREE.AmbientLight(0x404040); // Luce ambientale
+        scene.add(ambientLight);
+
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(1, 1, 1).normalize();
+        scene.add(directionalLight);
+
+        // Aggiunta di un oggetto (es. una scatola) all'interno della fabbrica
+        var boxGeometry = new THREE.BoxGeometry(10, 10, 10);
+        var boxMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+        var box = new THREE.Mesh(boxGeometry, boxMaterial);
+        box.position.set(0, 5, 0);
+        scene.add(box);
+
+        // Aggiornamento della posizione della camera
+        camera.position.set(0, 100, 200);
+        camera.lookAt(scene.position);
+
+        // Funzione per animare la scena
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>-->
+</body>
+</html>
+
